@@ -6,7 +6,7 @@ function Hero() {
       <div className="hero-content">
         {/* <div className="hero-small">ZAMOŚĆ · POLSKA</div> */}
         <h1>your journej 
-          <span>has beagan
+          <span>has just begun
             </span></h1>
         <p className="hero-text">
           Wynajmij motocykl ADV i ruszaj tam,
