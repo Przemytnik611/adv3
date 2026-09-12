@@ -49,8 +49,8 @@ nav {
   min-height: 700px;
   position: relative;
   background-image:
-    linear-gradient(90deg, rgba(0,0,0,.65), rgba(0,0,0,.05)),
-    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=85");
+    linear-gradient(90deg, rgba(0,0,0,.62), rgba(0,0,0,.08)),
+    url("/images/hero-yurt-motorcycles.png");
   background-size: cover;
   background-position: center;
   display: flex;
@@ -135,74 +135,40 @@ nav {
 .map-background {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, #26352d 0%, #151c19 45%, #080a09 100%);
+  background: #101412;
 }
-.map-grid {
+.map-video-wrap {
   position: absolute;
   inset: 0;
-  opacity: .15;
-  background-image:
-    linear-gradient(#fff 1px, transparent 1px),
-    linear-gradient(90deg, #fff 1px, transparent 1px);
-  background-size: 80px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 }
-.map {
-  position: relative;
-  width: min(1000px, 90vw);
-  height: 600px;
+.map-video {
+  height: 100vh;
+  width: auto;
+  max-width: 100vw;
+  object-fit: contain;
+  display: block;
 }
-.route {
+.map-vignette {
   position: absolute;
-  width: 800px;
-  height: 400px;
-  left: 100px;
-  top: 100px;
-  border-top: 3px dashed rgba(255,255,255,.65);
-  transform: rotate(-18deg) skewX(-15deg);
-}
-.location {
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 0 8px rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.6);
-}
-.location span {
-  position: absolute;
-  top: 25px;
-  left: -10px;
-  white-space: nowrap;
-  font-size: 12px;
-  letter-spacing: 1px;
-}
-.zamosc { left: 12%; top: 58%; }
-.roztocze { left: 30%; top: 48%; }
-.bieszczady { left: 52%; top: 36%; }
-.tatry { left: 70%; top: 27%; }
-.slovakia { left: 87%; top: 15%; }
-.motorcycle {
-  position: absolute;
-  left: 10%;
-  top: 52%;
-  font-size: 50px;
-  filter: drop-shadow(0 10px 10px rgba(0,0,0,.6));
-  animation: ride 12s linear infinite;
-}
-@keyframes ride {
-  0% { left: 10%; top: 52%; transform: rotate(-10deg); }
-  25% { left: 30%; top: 44%; transform: rotate(-8deg); }
-  50% { left: 50%; top: 35%; transform: rotate(-8deg); }
-  75% { left: 70%; top: 27%; transform: rotate(-8deg); }
-  100% { left: 87%; top: 15%; transform: rotate(-5deg); }
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(8,10,9,.72) 0%, rgba(8,10,9,.28) 30%, rgba(8,10,9,0) 58%),
+    linear-gradient(0deg, rgba(8,10,9,.35) 0%, transparent 35%, rgba(8,10,9,.12) 100%);
 }
 .map-title {
   position: absolute;
   top: 100px;
   left: 8vw;
   z-index: 5;
+  text-shadow: 0 4px 25px rgba(0,0,0,.45);
 }
-.map-title small { letter-spacing: 4px; opacity: .6; }
+.map-title small { letter-spacing: 4px; opacity: .75; }
 .map-title h2 {
   font-size: clamp(40px, 6vw, 80px);
   margin-top: 15px;
