@@ -146,8 +146,8 @@ function MapStory() {
         </div>
         <div className="map-vignette" />
         <div className="map-title">
-          <small>ONE ROAD · MANY STORIES</small>
-          <h2>RUSZAJ<br />PRZED SIEBIE.</h2>
+          <h2>ONE ROAD <br /> MANY STORIES</h2>
+          <small>RUSZAJ PRZED SIEBIE.</small>
         </div>
       </div>
     </section>
