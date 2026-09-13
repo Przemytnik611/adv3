@@ -126,7 +126,7 @@ nav {
 .map-sticky {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: 150vh;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -136,6 +136,9 @@ nav {
   position: absolute;
   inset: 0;
   background: #101412;
+  /* background-image: url("/public/images/istockphoto-598138086-1024x1024.jpg"); */
+  background-size: cover;
+  background-position: center;
 }
 .map-video-wrap {
   position: absolute;

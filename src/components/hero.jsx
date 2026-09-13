@@ -9,7 +9,7 @@ function Hero() {
           <span>has just begun
             </span></h1>
         <p className="hero-text">
-          Wynajmij motocykl ADV i ruszaj tam,
+          Wynajmij motocykl ADV i ruszaj tam,<br/>
           gdzie kończy się zwykła podróż.
         </p>
         <a href="#motocykle" className="button">WYBIERZ MOTOCYKL</a>

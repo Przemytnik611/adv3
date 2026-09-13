@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ADVENTURE RENTAL — Europe MapStory</title>
+<style>
+:root{
+  --ink:#15231f;--paper:#f3efe5;--accent:#df684b;--line:#f6a06f;
+  --sea:#d9e7e2;--muted:#63736b;--white:#fffdf8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit}
+.hero{min-height:100vh;display:grid;place-items:center;padding:6vw;position:relative;overflow:hidden;background:linear-gradient(145deg,#f6f1e8 0%,#e5eee9 100%)}
+.hero:before{content:"";position:absolute;width:42vw;height:42vw;border:1px solid rgba(21,35,31,.13);border-radius:50%;left:-10vw;top:-12vw}
+.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:.75rem;color:var(--muted)}
+.hero-inner{max-width:1100px;position:relative;z-index:1}
+.hero h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(3.5rem,9vw,9rem);line-height:.88;letter-spacing:-.055em;margin:.18em 0}
+.hero p{max-width:620px;font-size:clamp(1rem,2vw,1.35rem);line-height:1.6;color:var(--muted)}
+.scroll-hint{position:absolute;bottom:2rem;left:6vw;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
+.scroll-hint span{display:inline-block;animation:bob 1.5s infinite}
+@keyframes bob{50%{transform:translateY(7px)}}
+
+.journey{position:relative}
+.map-pinboard{
+  position:sticky;top:0;height:100vh;overflow:hidden;background:var(--sea);
+  box-shadow:inset 0 0 0 1px rgba(21,35,31,.08)
+}
+.map-wrap{position:absolute;inset:0}
+.map-wrap svg{width:100%;height:100%;display:block}
+.map-bg{fill:#d9e7e2}
+.land{fill:#f4f0e6;stroke:#aebeb5;stroke-width:1.5}
+.country-line{fill:none;stroke:#c5d2cb;stroke-width:1}
+.route-shadow{fill:none;stroke:#fff;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.72}
+.route{fill:none;stroke:var(--line);stroke-width:6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 1px rgba(99,49,29,.16))}
+.route-head{fill:var(--accent);stroke:#fff;stroke-width:4;filter:drop-shadow(0 5px 8px rgba(50,31,20,.25))}
+.spot{cursor:pointer;opacity:.25;transition:opacity .45s,transform .45s;transform-origin:center}
+.spot.active{opacity:1}
+.spot circle{fill:var(--paper);stroke:var(--accent);stroke-width:3}
+.spot text{font-size:14px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:5;stroke-linejoin:round}
+.spot.poi circle{fill:#fff;stroke:#294d43;stroke-width:2.5}
+.spot.poi text{font-size:11px;font-weight:650}
+.progress{position:absolute;top:0;left:0;width:5px;height:0;background:var(--accent);z-index:20}
+.map-label{position:absolute;left:clamp(1rem,4vw,4rem);top:clamp(1rem,4vw,3rem);z-index:20}
+.map-label strong{font-family:Georgia,serif;font-size:clamp(1.7rem,3vw,3.2rem);font-weight:400}
+.map-label div{font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:.4rem}
+.map-legend{
+  position:absolute;right:clamp(1rem,3vw,3rem);top:clamp(1rem,3vw,2rem);z-index:20;
+  background:rgba(255,253,248,.82);backdrop-filter:blur(12px);border:1px solid rgba(21,35,31,.12);
+  padding:.8rem 1rem;border-radius:14px;font-size:.72rem;color:var(--muted)
+}
+.legend-row{display:flex;gap:.55rem;align-items:center;margin:.28rem 0}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--accent);background:var(--paper)}
+.legend-dot.poi{border-color:#294d43;background:#fff}
+
+.poi-panel{
+  position:absolute;right:clamp(1rem,4vw,4rem);bottom:clamp(1rem,4vw,4rem);z-index:30;
+  width:min(390px,calc(100vw - 2rem));background:rgba(255,253,248,.96);
+  border:1px solid rgba(21,35,31,.13);border-radius:18px;overflow:hidden;
+  box-shadow:0 25px 80px rgba(35,57,50,.25);opacity:0;transform:translateY(25px) scale(.98);
+  pointer-events:none;transition:.35s ease
+}
+.poi-panel.visible{opacity:1;transform:none;pointer-events:auto}
+.poi-image{width:100%;height:205px;object-fit:cover;display:block}
+.poi-content{padding:1.2rem 1.25rem 1.35rem}
+.poi-kicker{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.poi-title{font:400 2rem/1 Georgia,serif;margin:.35rem 0 .55rem}
+.poi-desc{font-size:.9rem;line-height:1.55;color:var(--muted);margin:0}
+.poi-close{
+  position:absolute;right:.75rem;top:.75rem;width:34px;height:34px;border:0;border-radius:50%;
+  background:rgba(255,253,248,.9);font-size:1.2rem;cursor:pointer
+}
+
+.story{position:relative;z-index:2;margin-top:-100vh;pointer-events:none}
+.stop{min-height:105vh;display:flex;align-items:center;padding:8vw 6vw}
+.stop:nth-child(even){justify-content:flex-end}
+.card{
+  pointer-events:auto;width:min(430px,88vw);padding:clamp(1.5rem,3vw,2.6rem);
+  background:rgba(243,239,229,.92);border:1px solid rgba(21,35,31,.16);
+  box-shadow:0 20px 70px rgba(35,57,50,.15);backdrop-filter:blur(14px);
+  border-radius:16px;transform:translateY(40px);opacity:.35;transition:.55s ease
+}
+.stop.is-current .card{transform:none;opacity:1}
+.number{font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.card h2{font:400 clamp(2rem,4vw,3.8rem)/1 Georgia,serif;margin:.3em 0}
+.card p{color:var(--muted);line-height:1.65;margin:0}
+.tag{display:inline-block;margin-top:1.2rem;border:1px solid rgba(21,35,31,.25);border-radius:99px;padding:.48rem .8rem;font-size:.76rem}
+
+.end{min-height:85vh;display:grid;place-items:center;text-align:center;padding:8vw;background:var(--ink);color:var(--paper)}
+.end h2{font:400 clamp(3rem,8vw,7rem)/.95 Georgia,serif;margin:.2em 0}
+.end p{color:#b9c7c0;max-width:600px;line-height:1.7}
+
+@media(max-width:900px){
+  .map-label strong{font-size:1.8rem}
+  .map-legend{display:none}
+  .poi-panel{bottom:1rem}
+  .poi-image{height:170px}
+}
+@media(max-width:720px){
+  .map-wrap{transform:scale(1.08);transform-origin:50% 50%}
+  .stop,.stop:nth-child(even){justify-content:center;align-items:flex-end;padding-bottom:8vh}
+  .card{width:94vw}
+  .spot text{font-size:11px}
+  .spot.poi text{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .scroll-hint span,.card,.spot,.poi-panel{animation:none;transition:none}
+}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="hero-inner"><div class="eyebrow">Interaktywny szlak po Europie</div><h1>Jedna mapa.<br>Wiele historii.</h1><p>Przewijaj stronę, a trasa rozwija się od Lizbony aż po Ateny. Klikaj punkty na mapie, aby odkrywać ciekawe miejsca wraz ze zdjęciami.</p></div>
+  <div class="scroll-hint">Rozpocznij podróż <span>↓</span></div>
+</section>
+<section class="journey" id="journey">
+  <div class="map-pinboard">
+    <div class="progress"></div>
+    <div class="map-label"><div>Interaktywna trasa europejska</div><strong id="currentPlace">Lizbona</strong></div>
+
+    <div class="map-legend">
+      <div class="legend-row"><span class="legend-dot"></span> główne przystanki</div>
+      <div class="legend-row"><span class="legend-dot poi"></span> ciekawe miejsce</div>
+      <div class="legend-row">Kliknij punkt, aby zobaczyć zdjęcie</div>
+    </div>
+
+    <div class="poi-panel" id="poiPanel">
+      <button class="poi-close" id="poiClose" aria-label="Zamknij">×</button>
+      <img class="poi-image" id="poiImage" alt="">
+      <div class="poi-content">
+        <div class="poi-kicker" id="poiKicker"></div>
+        <div class="poi-title" id="poiTitle"></div>
+        <p class="poi-desc" id="poiDesc"></p>
+      </div>
+    </div>
+
+    <div class="map-wrap">
+      <!-- Duża, szczegółowa mapa SVG. Współrzędne punktów są związane z rzeczywistymi lokalizacjami. -->
+      <svg viewBox="0 0 1400 850" role="img" aria-label="Szczegółowa mapa Europy z animowaną trasą i ciekawymi miejscami">
+        <rect class="map-bg" x="0" y="0" width="1400" height="850"/>
+
+        <!-- stylizowany kontur Europy -->
+        <path class="land" d="M110 655 L135 590 175 552 202 485 248 445 292 392 330 325 410 285 468 210 548 168 602 188 650 132 735 150 784 205 858 210 912 170 1000 192 1048 245 1128 264 1190 318 1162 370 1212 418 1158 468 1115 530 1048 555 1005 625 925 646 870 710 790 680 732 620 675 604 620 550 568 512 505 458 495 420 448 365 470 330 535 265 560 238 622 175 684 Z"/>
+        <path class="land" d="M548 145 L530 95 555 42 602 70 606 135 Z"/>
+        <path class="land" d="M280 365 L232 315 246 255 292 280 308 337 Z"/>
+        <path class="land" d="M980 690 L1025 700 1055 748 1010 760 968 720 Z"/>
+        <path class="land" d="M1195 475 L1230 490 1242 525 1215 535 1192 510 Z"/>
+
+        <!-- umowne granice państw dla większej czytelności -->
+        <path class="country-line" d="M202 485 L315 500 365 470 420 448 458 495 512 505 568 550"/>
+        <path class="country-line" d="M330 325 L395 365 485 355 575 385 660 345 735 395 805 320 858 280"/>
+        <path class="country-line" d="M410 285 L465 345 395 365 330 325"/>
+        <path class="country-line" d="M602 188 L615 265 660 345 735 150"/>
+        <path class="country-line" d="M735 395 L790 475 732 555 675 604"/>
+        <path class="country-line" d="M858 280 L905 365 790 475 925 646"/>
+        <path class="country-line" d="M1048 245 L1010 330 1128 350 1162 370"/>
+        <path class="country-line" d="M1005 625 L925 560 870 710"/>
+        <path class="country-line" d="M1158 468 L1080 445 1010 500 1048 555"/>
+
+        <!-- trasa: Lizbona -> Barcelona -> Paryż -> Amsterdam -> Berlin -> Praga -> Budapeszt -> Dubrownik -> Ateny -->
+        <path id="routeShadow" class="route-shadow"
+          d="M155 575 C245 548 268 468 360 452 S450 360 510 350 S575 275 625 260
+             S690 300 735 350 S790 430 830 480 S915 485 960 510 S970 590 1020 625
+             S1070 670 1110 715"/>
+        <path id="route" class="route"
+          d="M155 575 C245 548 268 468 360 452 S450 360 510 350 S575 275 625 260
+             S690 300 735 350 S790 430 830 480 S915 485 960 510 S970 590 1020 625
+             S1070 670 1110 715"/>
+
+        <!-- główne przystanki -->
+        <g class="spot" data-index="0" transform="translate(155 575)"><circle r="11"/><text x="18" y="6">Lizbona</text></g>
+        <g class="spot" data-index="1" transform="translate(360 452)"><circle r="11"/><text x="18" y="6">Barcelona</text></g>
+        <g class="spot" data-index="2" transform="translate(510 350)"><circle r="11"/><text x="18" y="6">Paryż</text></g>
+        <g class="spot" data-index="3" transform="translate(625 260)"><circle r="11"/><text x="18" y="6">Amsterdam</text></g>
+        <g class="spot" data-index="4" transform="translate(735 350)"><circle r="11"/><text x="18" y="6">Berlin</text></g>
+        <g class="spot" data-index="5" transform="translate(830 480)"><circle r="11"/><text x="18" y="6">Praga</text></g>
+        <g class="spot" data-index="6" transform="translate(960 510)"><circle r="11"/><text x="18" y="6">Budapeszt</text></g>
+        <g class="spot" data-index="7" transform="translate(1020 625)"><circle r="11"/><text x="18" y="6">Dubrownik</text></g>
+        <g class="spot" data-index="8" transform="translate(1110 715)"><circle r="11"/><text x="18" y="6">Ateny</text></g>
+
+        <!-- dodatkowe POI: ich pozycje odpowiadają lokalizacjom na mapie -->
+        <g class="spot poi" data-poi="sintra" transform="translate(185 540)"><circle r="7"/><text x="12" y="-8">Sintra</text></g>
+        <g class="spot poi" data-poi="montserrat" transform="translate(350 420)"><circle r="7"/><text x="12" y="-8">Montserrat</text></g>
+        <g class="spot poi" data-poi="carcassonne" transform="translate(430 405)"><circle r="7"/><text x="12" y="-8">Carcassonne</text></g>
+        <g class="spot poi" data-poi="montblanc" transform="translate(485 385)"><circle r="7"/><text x="12" y="-8">Mont Blanc</text></g>
+        <g class="spot poi" data-poi="bruges" transform="translate(590 235)"><circle r="7"/><text x="12" y="-8">Brugia</text></g>
+        <g class="spot poi" data-poi="saxon" transform="translate(700 325)"><circle r="7"/><text x="12" y="-8">Szwajcaria Saksońska</text></g>
+        <g class="spot poi" data-poi="grossglockner" transform="translate(875 530)"><circle r="7"/><text x="12" y="-8">Grossglockner</text></g>
+        <g class="spot poi" data-poi="plitvice" transform="translate(1000 600)"><circle r="7"/><text x="12" y="-8">Plitwice</text></g>
+        <g class="spot poi" data-poi="kotor" transform="translate(1055 665)"><circle r="7"/><text x="12" y="-8">Kotor</text></g>
+        <g class="spot poi" data-poi="meteora" transform="translate(1090 675)"><circle r="7"/><text x="12" y="-8">Meteory</text></g>
+
+        <circle id="routeHead" class="route-head" r="11" cx="155" cy="575"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="story">
+    <article class="stop" data-place="Lizbona"><div class="card"><div class="number">Przystanek 01</div><h2>Lizbona</h2><p>Start podróży. Stare dzielnice, ocean i droga na zachód Europy. Od tego miejsca mapa zaczyna odsłaniać kolejne odcinki trasy.</p><span class="tag">Portugalia · start</span></div></article>
+    <article class="stop" data-place="Barcelona"><div class="card"><div class="number">Przystanek 02</div><h2>Barcelona</h2><p>Śródziemnomorski klimat, góry Montserrat i kręte drogi Katalonii. To pierwszy duży odcinek dla motocyklisty.</p><span class="tag">Hiszpania · góry</span></div></article>
+    <article class="stop" data-place="Paryż"><div class="card"><div class="number">Przystanek 03</div><h2>Paryż</h2><p>Po drodze pojawiają się małe miasteczka i przełęcze, a finałem odcinka jest stolica Francji.</p><span class="tag">Francja · kultura</span></div></article>
+    <article class="stop" data-place="Amsterdam"><div class="card"><div class="number">Przystanek 04</div><h2>Amsterdam</h2><p>Kanały, Brugia po drodze i spokojniejsze drogi północnej Europy.</p><span class="tag">Niderlandy · kanały</span></div></article>
+    <article class="stop" data-place="Berlin"><div class="card"><div class="number">Przystanek 05</div><h2>Berlin</h2><p>Trasa skręca na wschód. Kolejne punkty prowadzą przez Saksonię i dalej w stronę Czech.</p><span class="tag">Niemcy · historia</span></div></article>
+    <article class="stop" data-place="Praga"><div class="card"><div class="number">Przystanek 06</div><h2>Praga</h2><p>Praga jest naturalnym punktem na trasie przez Czechy i dalej na Alpy.</p><span class="tag">Czechy · zabytki</span></div></article>
+    <article class="stop" data-place="Budapeszt"><div class="card"><div class="number">Przystanek 07</div><h2>Budapeszt</h2><p>Dunaj, wzgórza Budy i droga prowadząca na południe Europy. W pobliżu pojawia się Grossglockner jako jeden z najciekawszych punktów górskich.</p><span class="tag">Węgry · południe</span></div></article>
+    <article class="stop" data-place="Dubrownik"><div class="card"><div class="number">Przystanek 08</div><h2>Dubrownik</h2><p>Adriatyk, chorwackie wybrzeże i możliwość odbicia w stronę Plitwic oraz Zatoki Kotorskiej.</p><span class="tag">Chorwacja · Adriatyk</span></div></article>
+    <article class="stop" data-place="Ateny"><div class="card"><div class="number">Przystanek 09</div><h2>Ateny</h2><p>Finał podróży. Ostatni etap prowadzi przez Bałkany i Meteory w kierunku Grecji.</p><span class="tag">Grecja · finał</span></div></article>
+  </div>
+</section>
+
+<section class="end"><div><div class="eyebrow">Koniec tej trasy, początek następnej</div><h2>Europa jest bliżej,<br>niż myślisz.</h2><p>Prototyp wykorzystuje lekką grafikę SVG i natywny JavaScript. Trasa, aktywne punkty i nagłówki reagują na pozycję przewijania.</p></div></section>
+<script>
+const journey=document.querySelector('.journey');
+const route=document.querySelector('#route');
+const shadow=document.querySelector('#routeShadow');
+const head=document.querySelector('#routeHead');
+const stops=[...document.querySelectorAll('.stop')];
+const spots=[...document.querySelectorAll('.spot')];
+const label=document.querySelector('#currentPlace');
+const progress=document.querySelector('.progress');
+const len=route.getTotalLength();
+
+[route,shadow].forEach(p=>{
+  p.style.strokeDasharray=len;
+  p.style.strokeDashoffset=len;
+});
+
+const poiData={
+  sintra:{
+    title:"Sintra",
+    kicker:"Portugalia · pałace i góry",
+    desc:"Pałace, zielone wzgórza i kręte drogi tuż za Lizboną.",
+    image:"https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=900&q=85"
+  },
+  montserrat:{
+    title:"Montserrat",
+    kicker:"Hiszpania · Katalonia",
+    desc:"Charakterystyczne skaliste pasmo górskie niedaleko Barcelony.",
+    image:"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=900&q=85"
+  },
+  carcassonne:{
+    title:"Carcassonne",
+    kicker:"Francja · średniowieczne miasto",
+    desc:"Warowne miasto z imponującymi murami — świetny przystanek na trasie przez południe Francji.",
+    image:"https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=85"
+  },
+  montblanc:{
+    title:"Mont Blanc",
+    kicker:"Alpy · Francja / Włochy",
+    desc:"Jeden z najbardziej spektakularnych górskich punktów na europejskiej trasie.",
+    image:"https://images.unsplash.com/photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=900&q=85"
+  },
+  bruges:{
+    title:"Brugia",
+    kicker:"Belgia · kanały",
+    desc:"Kompaktowe historyczne centrum, kanały i średniowieczna architektura.",
+    image:"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=900&q=85"
+  },
+  saxon:{
+    title:"Szwajcaria Saksońska",
+    kicker:"Niemcy · drogi widokowe",
+    desc:"Skalne formacje i kręte drogi w pobliżu granicy niemiecko-czeskiej.",
+    image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=85"
+  },
+  grossglockner:{
+    title:"Grossglockner Hochalpenstrasse",
+    kicker:"Austria · Alpy",
+    desc:"Jedna z najbardziej znanych wysokogórskich dróg motocyklowych w Europie.",
+    image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=85"
+  },
+  plitvice:{
+    title:"Jeziora Plitwickie",
+    kicker:"Chorwacja · natura",
+    desc:"Kaskady, turkusowa woda i drewniane kładki w jednym z najbardziej rozpoznawalnych parków Chorwacji.",
+    image:"https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=900&q=85"
+  },
+  kotor:{
+    title:"Zatoka Kotorska",
+    kicker:"Czarnogóra · Adriatyk",
+    desc:"Górska zatoka i jedna z najbardziej efektownych panoram na bałkańskiej trasie.",
+    image:"https://images.unsplash.com/photo-1555990538-1f1f2a1c2a5d?auto=format&fit=crop&w=900&q=85"
+  },
+  meteora:{
+    title:"Meteory",
+    kicker:"Grecja · skały i klasztory",
+    desc:"Monumentalne skały z klasztorami zawieszonymi wysoko nad doliną.",
+    image:"https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=900&q=85"
+  }
+};
+
+const panel=document.querySelector('#poiPanel');
+const poiImage=document.querySelector('#poiImage');
+const poiKicker=document.querySelector('#poiKicker');
+const poiTitle=document.querySelector('#poiTitle');
+const poiDesc=document.querySelector('#poiDesc');
+const poiClose=document.querySelector('#poiClose');
+
+function showPoi(key){
+  const p=poiData[key];
+  if(!p) return;
+  poiImage.src=p.image;
+  poiImage.alt=p.title;
+  poiKicker.textContent=p.kicker;
+  poiTitle.textContent=p.title;
+  poiDesc.textContent=p.desc;
+  panel.classList.add('visible');
+}
+function closePoi(){panel.classList.remove('visible')}
+poiClose.addEventListener('click',closePoi);
+spots.filter(s=>s.dataset.poi).forEach(s=>{
+  s.addEventListener('click',e=>{
+    e.stopPropagation();
+    showPoi(s.dataset.poi);
+  });
+});
+
+let target=0,current=0;
+function measure(){
+  const rect=journey.getBoundingClientRect();
+  const max=Math.max(1,journey.offsetHeight-innerHeight);
+  target=Math.max(0,Math.min(1,-rect.top/max));
+}
+function draw(){
+  current+=(target-current)*.09;
+  const offset=len*(1-current);
+  route.style.strokeDashoffset=offset;
+  shadow.style.strokeDashoffset=offset;
+
+  const pt=route.getPointAtLength(len*current);
+  head.setAttribute('cx',pt.x);
+  head.setAttribute('cy',pt.y);
+  progress.style.height=(current*100)+'%';
+
+  const idx=Math.min(stops.length-1,Math.floor(current*stops.length));
+  stops.forEach((s,i)=>s.classList.toggle('is-current',i===idx));
+  spots.filter(s=>s.dataset.index!==undefined).forEach((s,i)=>s.classList.toggle('active',i<=idx));
+
+  // POI stają się dostępne, gdy scroll dojeżdża do danego fragmentu trasy.
+  const poiActivation=[.03,.12,.20,.31,.43,.55,.69,.79,.90,.97];
+  spots.filter(s=>s.dataset.poi).forEach((s,i)=>{
+    s.classList.toggle('active',current>=poiActivation[i]);
+  });
+
+  label.textContent=stops[idx].dataset.place;
+  requestAnimationFrame(draw);
+}
+addEventListener('scroll',measure,{passive:true});
+addEventListener('resize',measure);
+measure();
+draw();
+</script>
+</body>
+</html>

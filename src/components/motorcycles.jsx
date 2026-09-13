@@ -2,23 +2,23 @@ import React, { useEffect, useState } from "react";
 
 const motorcycles = [
   {
-    name: "YAMAHA TRACER 7",
-    description: "Lekki. Dynamiczny. Idealny na długie trasy.",
-    price: 450,
-    image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=85"
+    name: "BMW R 1300 GS Adventure Triple Black",
+    // description: "Lekki. Dynamiczny. Idealny na długie trasy.",
+    price: 500,
+    image: "public/images/gstri.png"
   },
   {
-    name: "HONDA TRANSALP 750",
-    description: "Uniwersalny motocykl na asfalt i góry.",
-    price: 450,
-    image: "https://images.unsplash.com/photo-1558981359-219d6364c9c8?auto=format&fit=crop&w=1200&q=85"
+    name: "BMW R 1300 GS Adventure GS Trophy",
+    // description: "Uniwersalny motocykl na asfalt i góry.",
+    price: 500,
+    image: "public/images/gstrop.png"
   }
 ];
 
 function Motorcycles() {
   return (
     <section className="motorcycles" id="motocykle">
-      <h2 className="section-title">WYBIERZ<br />SWOJĄ MASZYNĘ.</h2>
+      <h2 className="section-title">WYBIERZ<br />MOTOCYKL</h2>
       <div className="bikes">
         {motorcycles.map((bike) => (
           <article className="bike" key={bike.name}>

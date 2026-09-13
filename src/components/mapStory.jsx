@@ -1,156 +1,108 @@
 
-// Source - https://stackoverflow.com/a/78155941
-// Posted by ktt, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-09-10, License - CC BY-SA 4.0
 
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
+import React from "react";
 
-// interface ScrollVideoProps {
-//   src: string;
-//   heightPerSecond: number;
-//   CoverElement?: React.ReactNode;
-//   belowNav: boolean;
-// }
+export default function MapStory() {
+  const videoRef = useRef(null);
+  const isVisibleRef = useRef(false); // Śledzi, czy wideo jest na ekranie
+  const scrollTimeoutRef = useRef(null); // Śledzi moment zakończenia scrollowania
 
-// const MapStory=()=>({
-//   src,
-//   heightPerSecond,
-//   CoverElement,
-//   belowNav = false,
-// }) => {
-//   const videoRef = useRef<HTMLVideoElement | null>(null);
-//   const containerRef = useRef<HTMLDivElement | null>(null);
-//   const [containerHeight, setContainerHeight] = useState("400vh"); // Default value
-//   const [videoEnded, setVideoEnded] = useState(false);
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
 
-//   const onVideoEnd = () => {
-//     setVideoEnded(true);
-//   };
+    // 1. Sprawdzamy, czy wideo jest widoczne na ekranie
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (!entry.isIntersecting) {
+          videoElement.pause(); // Jeśli uciekło z ekranu -> pauza
+        }
+      },
+      { threshold: 0.2 } // Reaguje, gdy min. 20% wideo jest widoczne
+    );
+    observer.observe(videoElement);
 
-//   useEffect(() => {
-//     let lastScroll = window.scrollY;
+    // 2. Funkcja obsługująca scrollowanie
+    const handleScroll = () => {
+      // Jeśli wideo nie jest widoczne, nic nie rób
+      if (!isVisibleRef.current) return;
 
-//     const handleScroll = () => {
-//       if (!videoRef.current || !containerRef.current) return;
+      // Spróbuj odtworzyć wideo podczas ruchu
+      if (videoElement.paused) {
+        videoElement.play().catch((err) => console.log("Blokada autoodtwarzania:", err));
+      }
 
-//       const containerTop = containerRef.current.offsetTop;
-//       const containerHeight = containerRef.current.offsetHeight;
-//       const containerBottom = containerTop + containerHeight;
+      // Czyszczenie poprzedniego timeoutu (użytkownik wciąż scrolluje)
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
 
-//       const scrollPos = window.scrollY;
-//       const viewportBottom = scrollPos + window.innerHeight;
+      // Jeśli użytkownik nie przewinie ekranu przez 150ms, zatrzymaj wideo
+      scrollTimeoutRef.current = setTimeout(() => {
+        videoElement.pause();
+      }, 150);
+    };
 
-//       // Check if video is within the viewport
-//       const isVideoInView =
-//         containerTop < viewportBottom && containerBottom > scrollPos;
+    // Nasłuchiwanie scrollowania na całym oknie
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
-//       if (isVideoInView && !videoRef.current.paused) {
-//         videoRef.current.pause();
-//       }
+    // Czyszczenie zdarzeń przy odmontowaniu komponentu
+    return () => {
+      observer.unobserve(videoElement);
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
 
-//       const percentageScrolled = (scrollPos - containerTop) / containerHeight;
-//       if (Number.isFinite(percentageScrolled) && videoRef.current.duration) {
-//         const targetTime = percentageScrolled * videoRef.current.duration;
-
-//         // Override autoplay when scrolling down, starting from autoplayed time if it exceeds scrolled amount. Same but opposite for scrolling up
-//         if (
-//           (videoRef.current.currentTime < targetTime &&
-//             scrollPos > lastScroll) ||
-//           (videoRef.current.currentTime > targetTime && scrollPos < lastScroll)
-//         ) {
-//           videoRef.current.currentTime = targetTime;
-//           setVideoEnded(false);
-//         }
-//       }
-
-//       lastScroll = window.scrollY;
-//     };
-
-//     window.addEventListener("scroll", handleScroll);
-
-//     return () => {
-//       window.removeEventListener("scroll", handleScroll);
-//     };
-//   }, []);
-
-//   const handleVideoLoaded = () => {
-//     if (videoRef.current) {
-//       setContainerHeight(`${videoRef.current.duration * heightPerSecond}px`);
-//     }
-//   };
-
-//   useEffect(() => {
-//     const videoElement = videoRef.current;
-//     if (videoElement) {
-//       if (videoElement.readyState >= 1) {
-//         handleVideoLoaded(); // Call directly if metadata is already loaded
-//       } else {
-//         videoElement.addEventListener("loadedmetadata", handleVideoLoaded);
-//       }
-
-//       return () => {
-//         videoElement.removeEventListener("loadedmetadata", handleVideoLoaded);
-//       };
-//     }
-//   }, []);
-
-//   return (
-//     <div
-//       ref={containerRef}
-//       style={{
-//         height: containerHeight,
-//         width: "100%",
-//         position: "relative",
-//       }}
-//     >
-//       <video
-//         muted
-//         playsInline
-//         controls={false}
-//         autoPlay
-//         ref={videoRef}
-//         onEnded={onVideoEnd}
-//         style={{
-//           position: "sticky",
-//           top: belowNav ? "68px" : "0",
-//           width: "100%",
-//           height: "100vh",
-//           objectFit: "cover",
-//         }}
-//       >
-//         <source src="/videos/12.mp4" /> Your browser does not support the
-//         video tag.
-//       </video>
-//     </div>
-//   );
-// };
-
-// export default MapStory;
-
-
-function MapStory() {
   return (
-    <section className="map-section" id="trasy">
-      <div className="map-sticky">
-        <div className="map-background" />
-        <div className="map-video-wrap">
-          <video
-            className="map-video"
-            src="/videos/12.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          />
-        </div>
-        <div className="map-vignette" />
-        <div className="map-title">
-          <h2>ONE ROAD <br /> MANY STORIES</h2>
-          <small>RUSZAJ PRZED SIEBIE.</small>
-        </div>
-      </div>
-    </section>
+    <div style={{ minHeight: "100vh", padding: "10vh 0" }}> {/* Sztuczny margines do testowania scrolla */}
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        loop
+         style={{
+          width: "100vw",          // Pełna szerokość okna przeglądarki
+          height: "auto",          // Automatyczna wysokość zachowująca proporcje
+          maxHeight: "150vh",       // Opcjonalnie: ogranicza wysokość, by nie zasłonić całego ekranu w pionie
+               // Ładnie dopasowuje klatki wideo do pełnej szerokości
+          display: "block",
+          margin: "0",
+          padding: "0"
+        }}
+      >
+        <source src="public/videos/download.mp4" type="video/mp4" />
+        Twój edytor nie obsługuje tagu video.
+      </video>
+    </div>
   );
 }
-export default MapStory
+
+
+//   return (
+//     <section className="map-section" id="trasy">
+//       <div className="map-sticky">
+//         <div className="map-background" />
+//         <div className="map-video-wrap">
+//           <video
+//             className="map-video"
+//             src="/videos/download.mp4"
+//             autoPlay
+//             muted
+//             loop
+//             playsInline
+//             preload="auto"
+//           />
+//         </div>
+//         <div className="map-vignette" />
+//         <div className="map-title">
+//           <h2>ONE ROAD <br /> MANY STORIES</h2>
+//           <small>RUSZAJ PRZED SIEBIE.</small>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
+// export default MapStory
