@@ -18,7 +18,7 @@ function Booking() {
   return (
     <section className="booking" id="rezerwacja">
       <div className="booking-box">
-        <h2>ZAREZERWUJ<br />SWÓJ MOTOCYKL.</h2>
+        <img src="public/images/Rezerwuj.jpg" alt="Booking" />
         {/* <div className="form-grid">
           <div className="field">
             <label>MOTOCYKL</label>
