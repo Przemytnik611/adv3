@@ -4,105 +4,44 @@ import { useRef, useEffect, useState } from "react";
 import React from "react";
 
 export default function MapStory() {
-  const videoRef = useRef(null);
-  const isVisibleRef = useRef(false); // Śledzi, czy wideo jest na ekranie
-  const scrollTimeoutRef = useRef(null); // Śledzi moment zakończenia scrollowania
 
-  useEffect(() => {
-    const videoElement = videoRef.current;
-    if (!videoElement) return;
-
-    // 1. Sprawdzamy, czy wideo jest widoczne na ekranie
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
-        if (!entry.isIntersecting) {
-          videoElement.pause(); // Jeśli uciekło z ekranu -> pauza
-        }
-      },
-      { threshold: 0.2 } // Reaguje, gdy min. 20% wideo jest widoczne
-    );
-    observer.observe(videoElement);
-
-    // 2. Funkcja obsługująca scrollowanie
-    const handleScroll = () => {
-      // Jeśli wideo nie jest widoczne, nic nie rób
-      if (!isVisibleRef.current) return;
-
-      // Spróbuj odtworzyć wideo podczas ruchu
-      if (videoElement.paused) {
-        videoElement.play().catch((err) => console.log("Blokada autoodtwarzania:", err));
-      }
-
-      // Czyszczenie poprzedniego timeoutu (użytkownik wciąż scrolluje)
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-
-      // Jeśli użytkownik nie przewinie ekranu przez 150ms, zatrzymaj wideo
-      scrollTimeoutRef.current = setTimeout(() => {
-        videoElement.pause();
-      }, 150);
-    };
-
-    // Nasłuchiwanie scrollowania na całym oknie
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    // Czyszczenie zdarzeń przy odmontowaniu komponentu
-    return () => {
-      observer.unobserve(videoElement);
-      window.removeEventListener("scroll", handleScroll);
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    };
-  }, []);
 
   return (
-    <div style={{ minHeight: "100vh", padding: "10vh 0" }}> {/* Sztuczny margines do testowania scrolla */}
-      <video
-        ref={videoRef}
-        muted
-        playsInline
-        loop
-         style={{
-          width: "100vw",          // Pełna szerokość okna przeglądarki
-          height: "auto",          // Automatyczna wysokość zachowująca proporcje
-          maxHeight: "150vh",       // Opcjonalnie: ogranicza wysokość, by nie zasłonić całego ekranu w pionie
-               // Ładnie dopasowuje klatki wideo do pełnej szerokości
-          display: "block",
-          margin: "0",
-          padding: "0"
-        }}
-      >
-        <source src="public/videos/download.mp4" type="video/mp4" />
-        Twój edytor nie obsługuje tagu video.
-      </video>
+    <div style={{ position: "relative", minHeight: "250vh", padding: "10vh 0", border: "2px solid white", boxSizing: "border-box" }}>
+      <div  style={{ position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)" }}>
+        <h2> tutaj mapa </h2>
+      </div>
+      <div style={{ position: "absolute", top: "5%", left: "5%", transform: "translateX(0%)",fontSize: "clamp(30px, 2vw, 12px)", lineHeight: "2", letterSpacing: "1px", textTransform: "uppercase" }}>
+       Zajmujemy się<br/>
+       profesjonalnym wynajmem<br/>motocykli adventure
+      </div>
+      <div style={{ position: "absolute", top: "45%", left: "50%", transform: "translateX(0%)",fontSize: "clamp(20px, 2vw, 12px)", lineHeight: "2", letterSpacing: "1px", textTransform: "uppercase" }}>
+          Oferujemy wynajem motocykli klasy premium dla tych, <br/>
+          którzy chcą odkrywać nowe miejsca z dala od utartych szlaków.<br/>
+          Oferujemy starannie wybrane motocykle adventure <br/>
+          idealne zarówno na weekendowe wypady, jak i wielodniowe podróże po Polsce i Europie. 
+      </div>
+      <div style={{ position: "absolute", top: "65%", left: "2%", transform: "translateX(0%)",fontSize: "clamp(20px, 2vw, 12px)", lineHeight: "2", letterSpacing: "1px", textTransform: "uppercase" }}>
+          Odbierasz motocykl w Zamościu, Lublinie, Rzeszowie lub w każdym innym miejscu w Polsce,<br/>
+          wybierasz kierunek i ruszasz w drogę — bez zbędnych formalności. <br/>
+          Stawiamy na jakość i bezpieczeństwo.<br/>
+          Nasze motocykle to nowe, nowoczesne maszyny klasy premium,<br/>
+          regularnie serwisowane i przygotowywane do każdej kolejnej podróży.<br/>
+          Każdy motocykl przed wydaniem przechodzi dokładną kontrolę techniczną, <br/>
+          jest czysty, zadbany i w pełni sprawny. <br/>
+          abyś mógł bez obaw ruszyć w drogę.<br/>
+          Zasada jest prosta: odbierasz motocykl, który sami chcielibyśmy dostać.
+      </div>
+       <div style={{ position: "absolute", top: "85%", left: "50%", transform: "translateX(0%)",fontSize: "clamp(20px, 2vw, 12px)", lineHeight: "2", letterSpacing: "1px", textTransform: "uppercase" }}>
+          <h2>Wybierz → zarezerwuj → odbierz → ruszaj.</h2> 
+          Wybierz swój motocykl, określ termin podróży i zarezerwuj online.<br/>
+          Od razu wiesz, co rezerwujesz i ile płacisz.<br/>
+          My zajmiemy się przygotowaniem motocykla,<br/>
+          a Ty możesz skupić się na planowaniu trasy.<br/>
+          Prosto. Przejrzyście. Bez zbędnych formalności, bez ukrytych kosztów.<br/>
+          Tak, jak powinien wyglądać wynajem motocykla.
+      </div>
     </div>
   );
 }
 
-
-//   return (
-//     <section className="map-section" id="trasy">
-//       <div className="map-sticky">
-//         <div className="map-background" />
-//         <div className="map-video-wrap">
-//           <video
-//             className="map-video"
-//             src="/videos/download.mp4"
-//             autoPlay
-//             muted
-//             loop
-//             playsInline
-//             preload="auto"
-//           />
-//         </div>
-//         <div className="map-vignette" />
-//         <div className="map-title">
-//           <h2>ONE ROAD <br /> MANY STORIES</h2>
-//           <small>RUSZAJ PRZED SIEBIE.</small>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-// export default MapStory

@@ -4,7 +4,7 @@ function Footer() {
   return (
     <footer id="kontakt">
       <div><strong>ADVENTURE RENTAL</strong><br />Zamość · Polska</div>
-      <div>MOTOCYKLE · TRASY · PRZYGODA</div>
+      <div>MOTOCYKLE · DROGA · PRZYGODA</div>
     </footer>
   );
 }

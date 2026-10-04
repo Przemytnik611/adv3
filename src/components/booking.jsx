@@ -18,8 +18,8 @@ function Booking() {
   return (
     <section className="booking" id="rezerwacja">
       <div className="booking-box">
-        <h2>ZAREZERWUJ<br />SWOJĄ TRASĘ.</h2>
-        <div className="form-grid">
+        <h2>ZAREZERWUJ<br />SWÓJ MOTOCYKL.</h2>
+        {/* <div className="form-grid">
           <div className="field">
             <label>MOTOCYKL</label>
             <select value={bike} onChange={(e) => setBike(e.target.value)}>
@@ -44,7 +44,7 @@ function Booking() {
           CENA OD:<br />
           <strong>{total.toLocaleString("pl-PL")} zł</strong>
         </div>
-        <a href="#kontakt" className="button">PRZEJDŹ DO REZERWACJI</a>
+        <a href="#kontakt" className="button">PRZEJDŹ DO REZERWACJI</a> */}
       </div>
     </section>
   );

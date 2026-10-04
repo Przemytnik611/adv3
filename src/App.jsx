@@ -4,10 +4,11 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/hero";
 import MapStory from "./components/mapStory";
 import Destinations from "./components/destinations";
-import Motorcycles from "./components/motorcycles";
+import Motorcycles from "./components/Motorcycles";
 import Booking from "./components/booking";
 import Footer from "./components/footer";
 import DataPicker from "./components/dataPicker";
+import PriceList from "./components/PriceList";
 import "./styles.css";
 
 
@@ -21,6 +22,7 @@ function App() {
         {/* <Destinations /> */}
         <Motorcycles />
         <Booking />
+        <PriceList />
       </main>
       <Footer />
       <DataPicker />
